@@ -19,3 +19,18 @@ Take the splice junction dataset analyzed in the paper as an example. Run the fu
 ### Generate some simple data and then run the proposed method on it:
 Matlab script `demo_run.m` is a simple, readable, and short script which first generates a simulated dataset `Y_data.csv`, and then runs the proposed method on it using the `bayes_pyramid('Y_data.csv')` function and returns the `saved_file` containing all the estimation results. Finally, the last line of the script `load(saved_file)` loads all the estimation results into the current Matlab workspace.
 
+### 识别可解释的离散数据中的离散潜在结构
+
+该仓库与以下论文相关：[Gu, Y. 和 Dunson, D.B. (2021)，贝叶斯金字塔：用于离散数据的可识别多层离散潜在结构模型](https://arxiv.org/abs/2101.10373)。
+
+### 摘要
+在生物医学和社会科学中，经常会收集到高维的分类数据。构建具有解释性且简洁的模型，对于在这些离散数据中执行降维操作和揭示有意义的潜在结构至关重要。可识别性是这些场景中进行有效建模和推断的基础要求，但当存在复杂的潜在结构时，这一问题具有挑战性。本文提出了一类可识别的多层（可能是深层）离散潜在结构模型，专用于处理离散数据，我们将其称为**贝叶斯金字塔**。通过对金字塔形状的深层潜在有向图开发新的透明条件，我们确立了贝叶斯金字塔的可识别性。这些可识别性条件在合适的先验条件下能够保证贝叶斯后验的一致性。作为示例，我们讨论了两层潜在层模型，并提出了一种贝叶斯收缩估计方法。该模型的仿真结果验证了模型参数的可识别性和可估性。将该方法应用于DNA核苷酸序列数据，揭示了高度预测序列类型的有用离散潜在特征。所提出的框架为离散数据的可解释无监督学习提供了指导，并且可以作为流行机器学习方法的有用替代方案。
+
+### 关于仿真：
+所有的Matlab函数和源代码文件都在`matlab_source_code/`目录下。运行`generate_2layer_data_strong.m`来生成模拟数据。然后运行函数`bp_csp_simu(K, alpha0)`，通过Gibbs采样来估计参数。关于K和alpha0的含义和讨论，详见论文。之后运行`simu_post_process.m`和`simu_figure.m`，对仿真结果进行评估并可视化。
+
+### 关于真实数据分析：
+以论文中分析的**剪接点数据集**为例，运行函数`splice_csp(K, alpha0)`来使用该方法分析剪接点数据。之后使用`splice_processing.m`和`python_corels/splice.py`，利用规则列表分类器执行下游分类任务。最后运行`splice_csp_figure.m`来生成图形，用于评估和可视化数据分析结果。
+
+### 生成一些简单数据并运行提出的方法：
+Matlab脚本`demo_run.m`是一个简单、易读且简短的脚本，它首先生成一个模拟数据集`Y_data.csv`，然后使用`bayes_pyramid('Y_data.csv')`函数对其运行所提出的方法，返回包含所有估计结果的`saved_file`。最后，脚本的最后一行`load(saved_file)`将所有的估计结果加载到当前的Matlab工作区中。
