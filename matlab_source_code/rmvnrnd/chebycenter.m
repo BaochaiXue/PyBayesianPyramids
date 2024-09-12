@@ -1,3 +1,4 @@
+%这个代码用于计算多面体的切比雪夫中心（Chebyshev center）。多面体的切比雪夫中心是能够内接于该多面体的最大超球体的中心。在数学上，切比雪夫中心可以通过一个线性规划问题来求解。
 function [c, r] = chebycenter(A, b, r0)
 % CHEBYCENTER Compute Chebyshev center of polytope Ax <= b.
 %   The Chebyshev center of a polytope is the center of the largest
