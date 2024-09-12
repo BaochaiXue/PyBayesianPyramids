@@ -1,6 +1,6 @@
 function r = exprnd_fast(mu)
 %EXPRND_FAST generate random variates from the exponential distribution.
-%   r = exprnd_fast(mu) generates random numbers from the 
+%   r = exprnd_fast(mu) generates random numbers from the
 %   exponential distribution with mean mu.
 %
 %   The input arguments are:

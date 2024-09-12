@@ -69,63 +69,63 @@ L = (nrun - burn)/thin;
 tic;
 
 parfor g = 1:rep
-% for g = 1:1
-            
+    % for g = 1:1
+    
     Y_arr = permute(Yn_big_arr(:,:,:,g), [1 3 2]);
-
+    
     for ch = 1:nchain
-    [Q_mat_arr, beta_mat_arr, beta0_arr, Bern_K_arr, tau_arr, K_star_arr, ...
-        Q_active_all, beta_mattil_active, Bern_K_permute2, tau_permute2] ...
-        = rev_grubin_csp_pos_randini(Y_arr, K, B, nrun, burn, thin, alpha0);
-   
-    
-    K_star_rep(:, g) = [median(K_star_arr(burn+1:thin:end)); iqr(K_star_arr(burn+1:thin:end))];
-    
-    % z_beta_vec_rep(:, g) = mean(z_beta_vec_arr(:,burn+1:thin:end), 2);
-    
-    % store other posterior means
-    % Q-matrix, permuted
-    Q_mat_pomean_rep(:,:,g) = mean(Q_mat_arr(:,:,burn+1:thin:end), 3);
-    
-%     % A_mat and z posterior mean; A_mat permuted
-%     A_mat_pomean_rep(:,:,g) = mean(A_mat_arr(:,:,burn+1:thin:end), 3);
-%     z_mat_pomean_rep(:,:,g) = mean(z_tau_mat_arr(:,:,burn+1:thin:end), 3);
-    
-%     % permute_vec_rep(g,:) = permute_vec;
-%     sig2_beta_rep(:,:,g) = mean(sig2_beta_arr(:,:,burn+1:thin:end), 3);
-    
-    
-    % -- continuous parameters begin here -- %
-    % beta_mat, permuted
-    beta_mat_pomean_rep(:,:,:,ch,g) = mean(beta_mat_arr(:,:,:,burn+1:thin:end), 4);
-    
-    % get beta_tilde
-    beta_mat_tilde_arr = zeros(p, K, d, nrun);
-    for ii=1:nrun
-        beta_mat_tilde_arr(:,:,:,ii) = beta_mat_arr(:,:,:,ii) .* Q_mat_arr(:,:,ii);
-    end
-    
-    % beta_mat posterior mean
-    beta_mattil_pomean_rep(:,:,:,ch,g) = mean(beta_mat_tilde_arr(:,:,:,burn+1:thin:end), 4);
-    
-    % beta0 posterior mean
-    beta0_pomean_rep(:,:,ch,g) = mean(beta0_arr(:,:,burn+1:thin:end), 3);
-    
-    % Bern_K posterior mean
-    Bern_K_pomean_rep(:,:,ch,g) = mean(Bern_K_arr(:,:,burn+1:thin:end), 3);
-
-    % tau posterior mean
-    tau_pomean_rep(:,ch,g) = mean(tau_arr(:,burn+1:thin:end), 2);
-    
-    
-    % GR: within chain variance
-    betamat_chainvar(:,:,:,ch,g) = var(beta_mat_tilde_arr(:,1:K0,1:d-1,burn+1:thin:end), [], 4);
-    beta0_chainvar(:,:,ch,g) = var(beta0_arr(:,1:d-1,burn+1:thin:end), [], 3);
-    Bern_K_chainvar(:,:,ch,g) = var(Bern_K_arr(1:K0,:,burn+1:thin:end), [], 3);
-    tau_chainvar(:,ch,g) = var(tau_arr(:,burn+1:thin:end), [], 2);
-    
-    
-    fprintf('Replicate %d Chain %d completed\n', g, ch);
+        [Q_mat_arr, beta_mat_arr, beta0_arr, Bern_K_arr, tau_arr, K_star_arr, ...
+            Q_active_all, beta_mattil_active, Bern_K_permute2, tau_permute2] ...
+            = rev_grubin_csp_pos_randini(Y_arr, K, B, nrun, burn, thin, alpha0);
+        
+        
+        K_star_rep(:, g) = [median(K_star_arr(burn+1:thin:end)); iqr(K_star_arr(burn+1:thin:end))];
+        
+        % z_beta_vec_rep(:, g) = mean(z_beta_vec_arr(:,burn+1:thin:end), 2);
+        
+        % store other posterior means
+        % Q-matrix, permuted
+        Q_mat_pomean_rep(:,:,g) = mean(Q_mat_arr(:,:,burn+1:thin:end), 3);
+        
+        %     % A_mat and z posterior mean; A_mat permuted
+        %     A_mat_pomean_rep(:,:,g) = mean(A_mat_arr(:,:,burn+1:thin:end), 3);
+        %     z_mat_pomean_rep(:,:,g) = mean(z_tau_mat_arr(:,:,burn+1:thin:end), 3);
+        
+        %     % permute_vec_rep(g,:) = permute_vec;
+        %     sig2_beta_rep(:,:,g) = mean(sig2_beta_arr(:,:,burn+1:thin:end), 3);
+        
+        
+        % -- continuous parameters begin here -- %
+        % beta_mat, permuted
+        beta_mat_pomean_rep(:,:,:,ch,g) = mean(beta_mat_arr(:,:,:,burn+1:thin:end), 4);
+        
+        % get beta_tilde
+        beta_mat_tilde_arr = zeros(p, K, d, nrun);
+        for ii=1:nrun
+            beta_mat_tilde_arr(:,:,:,ii) = beta_mat_arr(:,:,:,ii) .* Q_mat_arr(:,:,ii);
+        end
+        
+        % beta_mat posterior mean
+        beta_mattil_pomean_rep(:,:,:,ch,g) = mean(beta_mat_tilde_arr(:,:,:,burn+1:thin:end), 4);
+        
+        % beta0 posterior mean
+        beta0_pomean_rep(:,:,ch,g) = mean(beta0_arr(:,:,burn+1:thin:end), 3);
+        
+        % Bern_K posterior mean
+        Bern_K_pomean_rep(:,:,ch,g) = mean(Bern_K_arr(:,:,burn+1:thin:end), 3);
+        
+        % tau posterior mean
+        tau_pomean_rep(:,ch,g) = mean(tau_arr(:,burn+1:thin:end), 2);
+        
+        
+        % GR: within chain variance
+        betamat_chainvar(:,:,:,ch,g) = var(beta_mat_tilde_arr(:,1:K0,1:d-1,burn+1:thin:end), [], 4);
+        beta0_chainvar(:,:,ch,g) = var(beta0_arr(:,1:d-1,burn+1:thin:end), [], 3);
+        Bern_K_chainvar(:,:,ch,g) = var(Bern_K_arr(1:K0,:,burn+1:thin:end), [], 3);
+        tau_chainvar(:,ch,g) = var(tau_arr(:,burn+1:thin:end), [], 2);
+        
+        
+        fprintf('Replicate %d Chain %d completed\n', g, ch);
     end
 end
 
@@ -140,7 +140,7 @@ for g = 1:rep
     beta0_W_var = 1/nchain * squeeze(sum(beta0_chainvar(:,:,:,g), 3));
     BernK_W_var = 1/nchain * squeeze(sum(Bern_K_chainvar(1:K0,:,:,g), 3));
     tau_W_var = 1/nchain * squeeze(sum(tau_chainvar(:,:,g), 2));
-   
+    
     grubin_betamat(:,:,:,g) = (1-1/L) + 1/L * betamat_B_var(:,:,1:d-1) ./ betamat_W_var;
     grubin_beta0(:,:,g) = (1-1/L) + 1/L * beta0_B_var(:,1:d-1) ./ beta0_W_var;
     grubin_Bern_K(:,:,g) = (1-1/L) + 1/L * BernK_B_var ./ BernK_W_var;

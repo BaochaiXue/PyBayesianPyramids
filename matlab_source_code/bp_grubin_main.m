@@ -26,9 +26,9 @@ med_tau = quantile(squeeze(grubin_tau), 0.5, 2)
 
 % %%%
 % quantile(squeeze(grubin_tau(1,1,:)), 0.75)
-% 
+%
 % quantile(squeeze(grubin_beta0), 0.75, 3)
-% 
+%
 % quantile(squeeze(grubin_betamat), 0.75, 3:4)
-% 
+%
 % quantile(squeeze(grubin_Bern_K), 0.75, 3)

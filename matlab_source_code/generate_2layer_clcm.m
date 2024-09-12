@@ -4,9 +4,9 @@ rng(0513)
 % This function generate data from Constrained Latent Class Model (CLCM)
 
 
-n = 500;  
+n = 500;
 rep = 50;
-K_trait = 2; p = 20; 
+K_trait = 2; p = 20;
 d = 3;
 Q_true = repmat(eye(K_trait), [p/K_trait 1]);
 p = size(Q_true, 1);
@@ -16,8 +16,8 @@ p = size(Q_true, 1);
 beta0_true1 = repmat([-4 -3], [p 1]);
 
 beta_max = [repmat([2 3], [12,1]); ...
-            repmat([4 5], [6,1]); ...
-            repmat([5 6], [2,1])];
+    repmat([4 5], [6,1]); ...
+    repmat([5 6], [2,1])];
 
 beta_mat_true_dense = zeros(p, K_trait, d-1);
 for j=1:p
@@ -55,18 +55,18 @@ beta0_true(:,1:d-1) = beta0_true1;
 
 figure;
 for j=1:10
-subplot(10,2,(j-1)*2+1)
-imagesc(S_mat_true(j,:)); colorbar; %title(num2str(j))
-% title(strcat('true E-vector for item', num2str(j)))
-% xlabel('extreme latent profiles');
-% xticks(1:k); 
-%
-subplot(10,2,(j-1)*2+2)
-imagesc(squeeze(lambda_tilde_true(j,:,:))); colorbar;
-%title(num2str(j))
-% title(strcat('true lambda matrix for item', num2str(j)))
-% xlabel('extreme latent profiles'); ylabel('response categories')
-% xticks(1:k); yticks(1:d); caxis([0 0.5])
+    subplot(10,2,(j-1)*2+1)
+    imagesc(S_mat_true(j,:)); colorbar; %title(num2str(j))
+    % title(strcat('true E-vector for item', num2str(j)))
+    % xlabel('extreme latent profiles');
+    % xticks(1:k);
+    %
+    subplot(10,2,(j-1)*2+2)
+    imagesc(squeeze(lambda_tilde_true(j,:,:))); colorbar;
+    %title(num2str(j))
+    % title(strcat('true lambda matrix for item', num2str(j)))
+    % xlabel('extreme latent profiles'); ylabel('response categories')
+    % xticks(1:k); yticks(1:d); caxis([0 0.5])
 end
 
 

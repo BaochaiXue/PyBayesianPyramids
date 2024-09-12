@@ -21,12 +21,12 @@ function [X meaneffective sigmaeffective] = TruncatedGaussian(sigma, range, vara
 %   [X meaneffective sigmaeffective] = TruncatedGaussian(...)
 %
 % Example:
-% 
+%
 % sigma=2;
 % range=[-3 5]
-% 
+%
 % [X meaneff sigmaeff] = TruncatedGaussian(sigma, range, [1 1e6]);
-% 
+%
 % stdX=std(X);
 % fprintf('mean(X)=%g, estimated=%g\n',meaneff, mean(X))
 % fprintf('sigma=%g, effective=%g, estimated=%g\n', sigma, sigmaeff, stdX)
@@ -63,7 +63,7 @@ if shapeflag
 else
     if diff(range)^2<12*sigma^2 % This imposes a limit of sigma wrt range
         warning('TruncatedGaussian:RangeSigmaIncompatible', ...
-                'TruncatedGaussian: range and sigma are incompatible\n');
+            'TruncatedGaussian: range and sigma are incompatible\n');
         sigmac = Inf;
     elseif isequal([sigma range], [PREVSIGMA PREVRANGE]) % See line #80
         sigmac = PREVSIGMAC; % Do not need to call fzero
@@ -72,11 +72,11 @@ else
         % sigmac in the formula of its pdf gives a standard deviation
         % equal to sigma
         [sigmac res flag] = fzero(@scz,sigma,[],...
-                                   sigma^2,range(1),range(2)); %#ok
+            sigma^2,range(1),range(2)); %#ok
         sigmac = abs(sigmac); % Force it to be positive
         if flag<0 % Someting is wrong
             error('TruncatedGaussian:fzerofailled', ...
-                  'Could not estimate sigmac\n');
+                'Could not estimate sigmac\n');
         end
         % Backup the solution
         [PREVSIGMA PREVRANGE PREVSIGMAC] = deal(sigma,range,sigmac);
@@ -97,7 +97,7 @@ if isinf(sigmac)
     cdfinv = @(y) range(1)+y*diff(range);
 else
     c = sqrt(2)*sigmac;
-
+    
     rn = range/c;
     asymthreshold = 4;
     
@@ -118,12 +118,12 @@ else
         right = max(rn);
         
         a = 0.147;
-
+        
         x2 = left*left;
         ax2 = a*x2;
         e1 = (4/pi+ax2) ./ (1+ax2);
         e1 = exp(-x2.*e1); % e1 < 3.0539e-008 for asymthreshold = 4
-
+        
         x2 = right*right;
         ax2 = a*x2;
         e2 = (4/pi+ax2) ./ (1+ax2);
@@ -132,13 +132,13 @@ else
         % Taylor series of erf(right)-erf(left) ~= sqrt(1-e2)-sqrt(1-e1)
         de =  -0.5*(e2-e1) -0.125*(e2-e1)*(e2+e1);
         
-        % Taylor series of erf1 := erf(left)-1 ~= sqrt(1-e1)-1 
+        % Taylor series of erf1 := erf(left)-1 ~= sqrt(1-e1)-1
         erf1 = (-0.5*e1 - 0.125*e1^2);
         cdfinv = @(y) c*asymcdfinv(y, erf1, de, a);
         
     else
         e = erf(range/c);
-
+        
         cdfinv = @(y) c*erfinv(e(1)+diff(e)*y);
     end
 end
@@ -207,7 +207,7 @@ end % stdtrunc
 function res=scz(sc, targetsigma2, lower, upper)
 % Gateway for fzero, aim the standard deviation to a target value
 res = vartrunc(lower, upper, sc) - targetsigma2 - ...
-      meantrunc(lower, upper, sc).^2;
+    meantrunc(lower, upper, sc).^2;
 end % scz
 
 % End of file TruncatedGaussian.m

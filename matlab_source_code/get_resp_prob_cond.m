@@ -1,5 +1,5 @@
 function [rp_cond] = get_resp_prob_cond(theta_mat, I_full)
-% produce R-matrix for all rows denoted by I, storing proportions of 
+% produce R-matrix for all rows denoted by I, storing proportions of
 % positive response for each response pattern in I
 
 [J, C] = size(theta_mat);

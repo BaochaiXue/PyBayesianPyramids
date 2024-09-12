@@ -5,14 +5,14 @@ function [z_tau_perm, best_perm] = get_best_permute(z_tau_vec, base_vec)
 B_tau = max(base_vec);
 n = length(z_tau_vec);
 
-rows = (1:n)'; 
+rows = (1:n)';
 
 cols = z_tau_vec;
 lin_idx = sub2ind([n,B_tau],rows,cols);
 z_tau_mat = zeros(n, B_tau);
 z_tau_mat(lin_idx) = 1;
 
-cols2 = base_vec; 
+cols2 = base_vec;
 lin_idx2 = sub2ind([n,B_tau],rows,cols2);
 base_mat = zeros(n, B_tau);
 base_mat(lin_idx2) = 1;

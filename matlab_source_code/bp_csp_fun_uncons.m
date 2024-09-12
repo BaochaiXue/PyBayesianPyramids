@@ -23,14 +23,14 @@ a_sig = 2; b_sig = 2;
 sig2_pseudo = 0.07;
 
 % MCMC setup
-% nrun = 10000; burn = 4000; thin = 5; 
+% nrun = 10000; burn = 4000; thin = 5;
 
 
 % -- initialize deep layer parameters -- %
 tau_temp = gamrnd(1, 1, [1 B]); % ones(B,1)/B; % C * 1
 tau = tau_temp/sum(tau_temp);
 % tau = ones(1,B)/B;
-Bern_K = rand(K, B); 
+Bern_K = rand(K, B);
 % -- initialize local deep Z -- %
 z_tau_mat = mnrnd(1, tau, n);
 
@@ -45,7 +45,7 @@ gamma_q = betarnd(1,1, 1);
 % -- initialize Q matrix -- %
 Q_mat = (rand(p,K) < gamma_q');
 % make sure every row contains at least one entry of 1
-% for any all-zero row, uniformly sample one entry to make it =1 
+% for any all-zero row, uniformly sample one entry to make it =1
 if any(sum(Q_mat,2)==0)
     Q_mat(sum(Q_mat,2)==0, :) = mnrnd(1, 1/K*ones(K,1), sum(sum(Q_mat,2)==0));
 end
@@ -98,7 +98,7 @@ end
 % initialize intercept beta0, size p * d -- %
 beta0 = zeros(p, d);
 beta0(:, 1:d-1) = repmat(mu_beta0', [p,1]);
-    %rmvnrnd(mu_beta0, diag(var_beta0)/10, p, [-eye(d-1);eye(d-1)], [Inf*ones(d-1,1); zeros(d-1,1)]);
+%rmvnrnd(mu_beta0, diag(var_beta0)/10, p, [-eye(d-1);eye(d-1)], [Inf*ones(d-1,1); zeros(d-1,1)]);
 % beta0_ini = beta0;
 
 
@@ -125,27 +125,27 @@ z_beta_vec_arr = zeros(K, nrun);
 
 
 % Gibbs sampler begins here
-for ii=1:nrun   
-
+for ii=1:nrun
+    
     % linear form inside the exp()
     % get Polya-Gamma parameters
     [PG_param, ~, C_ij_minus_c] = get_linear_form(beta_mat, beta0, Q_mat, A_mat);
-
-    % (1) Gibbs sampling for PG varriables, beta_mat, and beta0    
+    
+    % (1) Gibbs sampling for PG varriables, beta_mat, and beta0
     [beta_mat, beta0] = get_gibbs_beta_uncons(beta_mat, beta0, Y_arr, PG_param, C_ij_minus_c,...
         A_mat, Q_mat, sig2_beta, sig2_pseudo, var_beta0, mu_beta0);
-
+    
     % (2) Gibbs sampling for Q_mat
     Q_mat = get_gibbs_Q(Q_mat, Y_arr, beta_mat, beta0, A_mat, gamma_q, sig2_beta, sig2_pseudo);
-
+    
     % (3) Gibbs sampling for gamma_q
     gamma_q = betarnd(1+sum(sum(Q_mat)), 1+p*K-sum(sum(Q_mat)), 1);
     
     % (4) Gibbs sampling for sig2_beta, size K * d-1
     for k=1:K
-        if find(z_beta_mat(k,:)) > k 
+        if find(z_beta_mat(k,:)) > k
             % slab
-            for c=1:d-1 
+            for c=1:d-1
                 sig2_beta(k,c) = 1/gamrnd(a_sig + 0.5 * sum(Q_mat(:,k)), ...
                     1/(b_sig + 0.5 * sum(Q_mat(:,k) .* beta_mat(:,k,c).^2)) );
             end
@@ -158,10 +158,10 @@ for ii=1:nrun
     % (5) Gibbs sampling for v_beta
     v_new_a = (sum(z_beta_mat(:,1:end-1), 1))';
     v_new_b = flip(cumsum([0; flip(v_new_a(2:end))]));
-%     v_new_b = zeros(K-1, 1);
-%     for k=1:K-1
-%         v_new_b(k) = sum(v_new_a(k+1:end));
-%     end
+    %     v_new_b = zeros(K-1, 1);
+    %     for k=1:K-1
+    %         v_new_b(k) = sum(v_new_a(k+1:end));
+    %     end
     v_beta(1:end-1) = betarnd(1 + v_new_a, alpha0 + v_new_b);
     % update w_beta according to v_beta
     w_beta = v_beta .* cumprod([1; 1-v_beta(1:end-1)]);
@@ -197,7 +197,7 @@ for ii=1:nrun
     % -- update z_tau_mat, deep tensor core membership -- %
     z_tau_mat = get_gibbs_z(tau, Bern_K, A_mat);
     
-
+    
     %% store output data
     Q_mat_arr(:,:,ii) = Q_mat;
     gamma_q_arr(ii) = gamma_q;
@@ -213,9 +213,9 @@ for ii=1:nrun
     % CSP-specific quantities
     z_beta_vec_arr(:,ii) = z_beta_mat * (1:K)';
     K_star_arr(ii) = sum(z_beta_vec_arr(:,ii) > (1:K)');
-
+    
     fprintf('Gibbs iteration %d completed\n', ii);
-
+    
 end
 
 % % -- option 1: if we look for the permutation of latent traits:
@@ -224,7 +224,7 @@ end
 % % find the column permutation starts
 % Q_firstK_binind = 2.^(0:K-1) * Q_pm_raw(1:K, :);
 % [~, permute_vec] = sort(Q_firstK_binind);
-% % permute everything 
+% % permute everything
 % % % (and only store the effective posterior samples)
 % Q_mat_arr = Q_mat_arr(:, permute_vec, :);
 % beta_mat_arr = beta_mat_arr(:, permute_vec, :, :);

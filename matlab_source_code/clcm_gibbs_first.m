@@ -8,7 +8,7 @@ K = size(beta_mat,2);
 
 
 % prior for variance in SSVS
-sigma2_spike = 0.01; 
+sigma2_spike = 0.01;
 sigma2_slab = 10;
 
 % initialize rho
@@ -24,7 +24,7 @@ S_mat = S_mat_ini;
 alpha_lambda0 = 100;
 alpha_lambda = 0.01;
 % size p*d
-lambda0_temp = gamrnd(alpha_lambda0, 1, [p d]); 
+lambda0_temp = gamrnd(alpha_lambda0, 1, [p d]);
 lambda0 = lambda0_temp ./ sum(lambda0_temp, 2);
 % size p*d*K
 lambda_temp = gamrnd(alpha_lambda, 1, [p d K]);
@@ -34,7 +34,7 @@ lambda_tilde = bsxfun(@power, lambda, reshape(S_mat,[p 1 K])) ...
 
 
 % initialize Z_mat and pi_vec
-pi_temp = gamrnd(1,1, [K 1]); 
+pi_temp = gamrnd(1,1, [K 1]);
 pi_vec = pi_temp / sum(pi_temp);
 Z_mat = mnrnd(1, pi_vec, n); % n * K
 
@@ -56,7 +56,7 @@ for ii = 1:nrun
     
     keyboard
     
-    % Gibbs sampling for PG varriables, beta_mat, and beta0    
+    % Gibbs sampling for PG varriables, beta_mat, and beta0
     [beta_mat, beta0] = get_clcm_gibbs_beta_allpos(beta_mat, beta0, Y_arr, ...
         PG_param, C_ij_minus_c, Z_mat, S_mat);
     
@@ -74,9 +74,9 @@ for ii = 1:nrun
     S_mat_prob = rho./(rho + (1-rho)*ratio_denom);
     S_mat = (rand(p,K) < S_mat_prob);
     
-%     % try:
-%     S_mat(:,1:2) = S_mat_true(:,1:2);
-   
+    %     % try:
+    %     S_mat(:,1:2) = S_mat_true(:,1:2);
+    
     % Sample lambda, size p * K * d
     lambda_temp = gamrnd(alpha_lambda0 + permute(ZY_prod_Kpd, [2 1 3]) .* reshape(S_mat, [p K 1]), 1,  [p K d]);
     lambda = lambda_temp ./ reshape(sum(lambda_temp, 3), [p K 1]);
@@ -84,7 +84,7 @@ for ii = 1:nrun
     
     % Sample lambda0, size p * d
     lambda0_temp = gamrnd(alpha_lambda + squeeze(sum(permute(ZY_prod_Kpd,[2 1 3]) .* reshape(1-S_mat,[p K 1]), 2)), 1,  [p d]);
-    lambda0 = lambda0_temp ./ sum(lambda0_temp, 2);    
+    lambda0 = lambda0_temp ./ sum(lambda0_temp, 2);
     
     % Sample Z_mat
     % size p * K * d
@@ -102,7 +102,7 @@ for ii = 1:nrun
     pi_vec_temp = gamrnd(1 + sum(Z_mat,1),1, [1 K]);
     pi_vec = pi_vec_temp' / sum(pi_vec_temp);
     
-     
+    
     % Store data
     pi_vec_arr(:,ii) = pi_vec;
     % S_mat_arr(:,:,ii) = S_mat;

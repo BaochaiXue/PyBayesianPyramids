@@ -4,7 +4,7 @@ clear; close all;
 rng(0513)
 % -- global parameters -- %
 
-n = 5000;  
+n = 5000;
 
 d = 3; p = 20; G = 10; gsize = p/G;
 
@@ -18,7 +18,7 @@ lambda0_true = lambda0_nume ./ sum(lambda0_nume,2);
 
 beta_true = zeros(p,d,K);
 for c = 1:d-1
-beta_true(:,c,:) = repmat([1 2 4 7], [p 1]); % p * d * K
+    beta_true(:,c,:) = repmat([1 2 4 7], [p 1]); % p * d * K
 end
 beta_tilde_true = beta_true .* reshape(S_mat_true,[p 1 K]); % p * K
 
@@ -31,20 +31,20 @@ lambda_tilde_nume = exp(beta_array);
 lambda_tilde_true = lambda_tilde_nume ./ sum(lambda_tilde_nume,2);
 
 
-figure; 
+figure;
 for j=1:10
-subplot(10,2,(j-1)*2+1)
-imagesc(S_mat_true(j,:)); colorbar; %title(num2str(j))
-% title(strcat('true E-vector for item', num2str(j)))
-% xlabel('extreme latent profiles');
-% xticks(1:k); 
-%
-subplot(10,2,(j-1)*2+2)
-imagesc(squeeze(lambda_tilde_true(j,:,:))); colorbar;
-%title(num2str(j))
-% title(strcat('true lambda matrix for item', num2str(j)))
-% xlabel('extreme latent profiles'); ylabel('response categories')
-% xticks(1:k); yticks(1:d); caxis([0 0.5])
+    subplot(10,2,(j-1)*2+1)
+    imagesc(S_mat_true(j,:)); colorbar; %title(num2str(j))
+    % title(strcat('true E-vector for item', num2str(j)))
+    % xlabel('extreme latent profiles');
+    % xticks(1:k);
+    %
+    subplot(10,2,(j-1)*2+2)
+    imagesc(squeeze(lambda_tilde_true(j,:,:))); colorbar;
+    %title(num2str(j))
+    % title(strcat('true lambda matrix for item', num2str(j)))
+    % xlabel('extreme latent profiles'); ylabel('response categories')
+    % xticks(1:k); yticks(1:d); caxis([0 0.5])
 end
 
 % alpha_vec = 0.3 * ones(K,1);

@@ -17,7 +17,7 @@ load(filename);
 [n,d,p,rep] = size(Yn_big_arr);
 
 % MCMC setup
-nrun = 15000; burn = 5000; thin = 5; 
+nrun = 15000; burn = 5000; thin = 5;
 
 % global
 B = 2;
@@ -53,9 +53,9 @@ sig2_beta_arrs = cell(rep,1);
 
 % Use parallel computing to execute independent simulation replicates
 for g = 1:rep
-            
+    
     Y_arr = permute(Yn_big_arr(:,:,:,g), [1 3 2]);
-
+    
     % -- initialize parameters -- %
     [Q_mat_arr, beta_mat_arr, beta0_arr, A_mat_arr, Bern_K_arr, tau_arr,...
         z_tau_mat_arr, sig2_beta_arr, K_star_arr, z_beta_vec_arr] ...
@@ -86,7 +86,7 @@ for g = 1:rep
     
     % Bern_K posterior mean
     Bern_K_pomean_rep(:,:,g) = mean(Bern_K_arr(:,:,burn+1:thin:end), 3);
-
+    
     % tau posterior mean
     tau_pomean_rep(:,g) = mean(tau_arr(:,burn+1:thin:end), 2);
     
@@ -94,13 +94,13 @@ for g = 1:rep
     A_mat_pomean_rep(:,:,g) = mean(A_mat_arr(:,:,burn+1:thin:end), 3);
     z_mat_pomean_rep(:,:,g) = mean(z_tau_mat_arr(:,:,burn+1:thin:end), 3);
     sig2_beta_rep(:,:,g) = mean(sig2_beta_arr(:,:,burn+1:thin:end), 3);
-        
+    
     % NEW
     beta_mat_arrs{g} = beta_mat_arr;
     beta0_arrs{g} = beta0_arr;
     Q_mat_arrs{g} = Q_mat_arr;
     sig2_beta_arrs{g} = sig2_beta_arr;
-
+    
 end
 
 

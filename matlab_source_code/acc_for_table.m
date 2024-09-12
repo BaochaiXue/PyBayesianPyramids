@@ -11,7 +11,7 @@ r_indbin = 1- bp ./ indbin
 [min(r_dx(4:6)), max(r_dx(4:6))]
 [min(r_indbin(4:6)), max(r_indbin(4:6))]
 
-% bar plot 
+% bar plot
 err_mat = [raw', dx', indbin', bp'];
 
 figure; bar(1-err_mat(4:6,:)); ylim([0.8,1])

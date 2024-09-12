@@ -8,20 +8,20 @@ d = max(Y, [], 'all');
 [n, p] = size(Y);
 Y_arr = zeros(n, p, d);
 for c = 1:d
-    Y_arr(:, :, c) = (Y == c); 
+    Y_arr(:, :, c) = (Y == c);
 end
 
 % MCMC setup
-nrun = 15000; burn = 5000; thin = 5; 
+nrun = 15000; burn = 5000; thin = 5;
 
 K_upper = 5; % user-specified; also can be set to p/3
 B = 2; % user-specified; also can be ceil(log(K_upper/2)/log(2))
 alpha0 = K_upper;
 
 [Q_mat_arr, beta_mat_arr, beta0_arr, A_mat_arr, Bern_K_arr, tau_arr,...
-        z_tau_mat_arr, sig2_beta_arr, K_star_arr, z_beta_vec_arr] ...
-        = bp_csp_fun(Y_arr, K_upper, B, nrun, alpha0);
-    
+    z_tau_mat_arr, sig2_beta_arr, K_star_arr, z_beta_vec_arr] ...
+    = bp_csp_fun(Y_arr, K_upper, B, nrun, alpha0);
+
 K_star = [median(K_star_arr(burn+1:thin:end)); iqr(K_star_arr(burn+1:thin:end))];
 % track K_star_arr
 K_star_arrs = K_star_arr;
@@ -56,7 +56,7 @@ A_mat_pomean = mean(A_mat_arr(:,:,burn+1:thin:end), 3);
 z_mat_pomean = mean(z_tau_mat_arr(:,:,burn+1:thin:end), 3);
 sig2_beta = mean(sig2_beta_arr(:,:,burn+1:thin:end), 3);
 
-% output_file = 
+% output_file =
 
 filename = strcat('simu_results.mat');
 save(filename);

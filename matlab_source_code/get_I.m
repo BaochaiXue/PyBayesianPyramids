@@ -1,7 +1,7 @@
 function[I] = get_I(D,J)
 % question: if we set D=2, do we get all the two-way interations of
 % reponses? Yes!
-    
+
 index0 = 2.^((J-1):-1:0)'; % length M
 indices = index0;
 for d = 2:D

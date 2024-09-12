@@ -20,7 +20,7 @@ sig2_pseudo = 0.07;
 
 % -- initialize deep layer parameters -- %
 tau = ones(1,B)/B;
-Bern_K = rand(K, B); 
+Bern_K = rand(K, B);
 % -- initialize local deep Z -- %
 z_tau_mat = mnrnd(1, tau, n);
 
@@ -34,7 +34,7 @@ gamma_q = betarnd(1,1, 1);
 % -- initialize Q matrix -- %
 Q_mat = (rand(p,K) < gamma_q');
 % make sure every row contains at least one entry of 1
-% for any all-zero row, uniformly sample one entry to make it =1 
+% for any all-zero row, uniformly sample one entry to make it =1
 if any(sum(Q_mat,2)==0)
     Q_mat(sum(Q_mat,2)==0, :) = mnrnd(1, 1/K*ones(K,1), sum(sum(Q_mat,2)==0));
 end
@@ -96,31 +96,31 @@ z_beta_vec_arr = zeros(K, nrun);
 
 
 % Gibbs sampler begins here
-for ii=1:nrun   
-
+for ii=1:nrun
+    
     % linear form inside the exp()
     % get Polya-Gamma parameters
     [PG_param, ~, C_ij_minus_c] = get_linear_form(beta_mat, beta0, Q_mat, A_mat);
-
-    % (1) Gibbs sampling for PG varriables, beta_mat, and beta0    
+    
+    % (1) Gibbs sampling for PG varriables, beta_mat, and beta0
     [beta_mat, beta0] = get_gibbs_beta(beta_mat, beta0, Y_arr, PG_param, C_ij_minus_c,...
         A_mat, Q_mat, sig2_beta, sig2_pseudo, var_beta0, mu_beta0);
     % --Alternative: if we want all beta to be positive, run the following:
     % [beta_mat, beta0] = get_gibbs_beta_allpos(beta_mat, beta0, Y_arr, PG_param, C_ij_minus_c,...
     %     A_mat, Q_mat, sig2_beta, sig2_pseudo, var_beta0, mu_beta0);
-
+    
     % (2) Gibbs sampling for Q_mat
     % Q_mat = get_gibbs_Q(Q_mat, Y_arr, beta_mat, beta0, A_mat, gamma_q, sig2_beta, sig2_pseudo);
     Q_mat = get_gibbs_Q_noall0(Q_mat, Y_arr, beta_mat, beta0, A_mat, gamma_q, sig2_beta, sig2_pseudo);
-
+    
     % (3) Gibbs sampling for gamma_q
     gamma_q = betarnd(1+sum(sum(Q_mat)), 1+p*K-sum(sum(Q_mat)), 1);
     
     % (4) Gibbs sampling for sig2_beta, size K * d-1
     for k=1:K
-        if find(z_beta_mat(k,:)) > k 
+        if find(z_beta_mat(k,:)) > k
             % slab
-            for c=1:d-1 
+            for c=1:d-1
                 sig2_beta(k,c) = 1/gamrnd(a_sig + 0.5 * sum(Q_mat(:,k)), ...
                     1/(b_sig + 0.5 * sum(Q_mat(:,k) .* beta_mat(:,k,c).^2)) );
             end
@@ -168,7 +168,7 @@ for ii=1:nrun
     % -- update z_tau_mat, deep tensor core membership -- %
     z_tau_mat = get_gibbs_z(tau, Bern_K, A_mat);
     
-
+    
     %% store output data
     Q_mat_arr(:,:,ii) = Q_mat;
     gamma_q_arr(ii) = gamma_q;
@@ -184,10 +184,10 @@ for ii=1:nrun
     % CSP-specific quantities
     z_beta_vec_arr(:,ii) = z_beta_mat * (1:K)';
     K_star_arr(ii) = sum(z_beta_vec_arr(:,ii) > (1:K)');
-
+    
     fprintf('Gibbs iteration %d completed\n', ii);
     
-
+    
 end
 
 

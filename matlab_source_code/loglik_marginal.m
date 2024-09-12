@@ -1,6 +1,6 @@
 function [vec] = loglik_marginal(Y_i, Q_mat, beta_mat, beta0, Bern_K, tau)
 
-% Y_i = squeeze(Y_arr(1, :, :)); A_i = A_mat(1, :); 
+% Y_i = squeeze(Y_arr(1, :, :)); A_i = A_mat(1, :);
 % z_tau_i = z_tau_mat(1, :);
 
 [n, p, d] = size(Y_i);

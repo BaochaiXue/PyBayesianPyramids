@@ -11,7 +11,7 @@ addpath('./rmvnrnd')
 
 % MCMC setup
 nrun = 15000; burn = 5000; thin = 5;
-% nrun = 1500; burn = 1000; thin = 1; 
+% nrun = 1500; burn = 1000; thin = 1;
 
 
 % global
@@ -49,10 +49,10 @@ tic;
 % set up parpool
 % parpool(20);
 parfor g = 1:rep
-% for g = 1:1
-            
+    % for g = 1:1
+    
     Y_arr = permute(Yn_big_arr(:,:,:,g), [1 3 2]);
-
+    
     [Q_mat_arr, beta_mat_arr, beta0_arr, A_mat_arr, Bern_K_arr, tau_arr,...
         z_tau_mat_arr, sig2_beta_arr, K_star_arr, z_beta_vec_arr] ...
         = sglca_csp_fun_overfitmix(Y_arr, K, B, nrun, alpha0);
@@ -90,7 +90,7 @@ parfor g = 1:rep
     
     % Bern_K posterior mean
     Bern_K_pomean_rep(:,:,g) = mean(Bern_K_arr(:,:,burn+1:thin:end), 3);
-
+    
     % tau posterior mean
     tau_pomean_rep(:,g) = mean(tau_arr(:,burn+1:thin:end), 2);
     

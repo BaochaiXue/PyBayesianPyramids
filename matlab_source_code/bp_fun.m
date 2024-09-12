@@ -20,7 +20,7 @@ sig2_pseudo = 0.07;
 
 % -- initialize deep layer parameters -- %
 tau = ones(1,B)/B;
-Bern_K = rand(K, B); 
+Bern_K = rand(K, B);
 % -- initialize local deep Z -- %
 z_tau_mat = mnrnd(1, tau, n_now);
 
@@ -34,7 +34,7 @@ gamma_q = betarnd(1,1, 1);
 % -- initialize Q matrix -- %
 Q_mat = (rand(p,K) < gamma_q');
 % make sure every row contains at least one entry of 1
-% for any all-zero row, uniformly sample one entry to make it =1 
+% for any all-zero row, uniformly sample one entry to make it =1
 if any(sum(Q_mat,2)==0)
     Q_mat(sum(Q_mat,2)==0, :) = mnrnd(1, 1/K*ones(K,1), sum(sum(Q_mat,2)==0));
 end
@@ -57,7 +57,7 @@ for c=1:d-1
         pd1 = makedist('Normal', 'mu', 0, 'sigma', sqrt(sig2_beta(k,c)));
         beta_mat(:, k, c) = random(truncate(pd1,0,Inf), p, 1);
         
-
+        
     end
 end
 
@@ -85,120 +85,120 @@ sig2_beta_arr = zeros(K,d-1,nrun);
 
 
 %% Gibbs sampler begins here
-for ii=1:nrun   
-
+for ii=1:nrun
+    
     % linear form inside the exp()
     % get Polya-Gamma parameters
     [PG_param, ~, C_ij_minus_c] = get_linear_form(beta_mat, beta0, Q_mat, A_mat);
-
-    % (1)-(2) Gibbs sampling for PG varriables, beta_mat, and beta0    
+    
+    % (1)-(2) Gibbs sampling for PG varriables, beta_mat, and beta0
     for c=1:d-1
         % -- update beta0 and beta_mat -- %
         % get a binary matrix for category c
         Y_binc = Y_now_arr(:,:,c);
-
+        
         for j=1:p
             W(:,j,c) = pgdraw(PG_param(:,j,c));
-
+            
             %%
             if any(Q_mat(j,:)==1)
-            % size n_now * |K_j| + 1, |K_j| = sum(Q_mat(j,:)==1);
-            A_mat_jeff = A_mat(:, Q_mat(j,:)==1);
-
-            % |K_j| * |K_j|
-            Sigma0_jc = diag(sig2_beta(Q_mat(j,:)==1, c));
-
-            % |K_j| * |K_j|
-            Sigma_jc = inv(inv(Sigma0_jc) + A_mat_jeff' * (W(:,j,c) .* A_mat_jeff));
-            Sigma_jc = 0.5 * (Sigma_jc + Sigma_jc');
-
-            % |K_j| * 1
-            mu_jc = Sigma_jc * (A_mat_jeff' * (Y_binc(:,j) - 0.5 + W(:,j,c) .* (C_ij_minus_c(:,j,c) - beta0(j,c)) ));
-
-            % Truncate normal to be positive
-            num_k = sum(Q_mat(j,:)==1);
-            if num_k==1
-
-                % More robust sampling from truncated normal
-                rv_unif = unifrnd(normcdf(0,mu_jc,sqrt(Sigma_jc)),1, 1);
-                beta_candidate = norminv(rv_unif, mu_jc, sqrt(Sigma_jc));
-                if ~isnan(beta_candidate)
-                    beta_mat(j, Q_mat(j,:)==1, c) = norminv(rv_unif, mu_jc, sqrt(Sigma_jc));
+                % size n_now * |K_j| + 1, |K_j| = sum(Q_mat(j,:)==1);
+                A_mat_jeff = A_mat(:, Q_mat(j,:)==1);
+                
+                % |K_j| * |K_j|
+                Sigma0_jc = diag(sig2_beta(Q_mat(j,:)==1, c));
+                
+                % |K_j| * |K_j|
+                Sigma_jc = inv(inv(Sigma0_jc) + A_mat_jeff' * (W(:,j,c) .* A_mat_jeff));
+                Sigma_jc = 0.5 * (Sigma_jc + Sigma_jc');
+                
+                % |K_j| * 1
+                mu_jc = Sigma_jc * (A_mat_jeff' * (Y_binc(:,j) - 0.5 + W(:,j,c) .* (C_ij_minus_c(:,j,c) - beta0(j,c)) ));
+                
+                % Truncate normal to be positive
+                num_k = sum(Q_mat(j,:)==1);
+                if num_k==1
+                    
+                    % More robust sampling from truncated normal
+                    rv_unif = unifrnd(normcdf(0,mu_jc,sqrt(Sigma_jc)),1, 1);
+                    beta_candidate = norminv(rv_unif, mu_jc, sqrt(Sigma_jc));
+                    if ~isnan(beta_candidate)
+                        beta_mat(j, Q_mat(j,:)==1, c) = norminv(rv_unif, mu_jc, sqrt(Sigma_jc));
+                    else
+                        beta_mat(j, Q_mat(j,:)==1, c) = 0;
+                    end
+                    
                 else
-                    beta_mat(j, Q_mat(j,:)==1, c) = 0;
+                    beta_mat(j, Q_mat(j,:)==1, c) = mvnrnd(mu_jc, Sigma_jc, 1);
                 end
-               
-            else
-                beta_mat(j, Q_mat(j,:)==1, c) = mvnrnd(mu_jc, Sigma_jc, 1);
+                
+                
+                if any(Q_mat(j,:)==0)
+                    % option 1: no truncation
+                    beta_mat(j, Q_mat(j,:)==0, c) = normrnd(0, sqrt(sig2_pseudo), [1 sum(Q_mat(j,:)==0)]);
+                end
+                
+                %% beta0, intercept
+                var_beta00 = inv( 1/var_beta0(c) + sum(W(:,j,c)) );
+                
+                mu_beta00 = var_beta00 * ( var_beta0(c)\mu_beta0(c) + ...
+                    sum( Y_binc(:,j)-1/2 - W(:,j,c) .* (A_mat * (Q_mat(j,:).*beta_mat(j,:,c))' - C_ij_minus_c(:,j,c)) ));
+                
+                beta0(j,c) = normrnd(mu_beta00, sqrt(var_beta00), 1);
+                
             end
-
-
-            if any(Q_mat(j,:)==0)
-                % option 1: no truncation
-                beta_mat(j, Q_mat(j,:)==0, c) = normrnd(0, sqrt(sig2_pseudo), [1 sum(Q_mat(j,:)==0)]);
-            end
-
-            %% beta0, intercept
-            var_beta00 = inv( 1/var_beta0(c) + sum(W(:,j,c)) );
-
-            mu_beta00 = var_beta00 * ( var_beta0(c)\mu_beta0(c) + ...
-                sum( Y_binc(:,j)-1/2 - W(:,j,c) .* (A_mat * (Q_mat(j,:).*beta_mat(j,:,c))' - C_ij_minus_c(:,j,c)) ));
-
-            beta0(j,c) = normrnd(mu_beta00, sqrt(var_beta00), 1);
-
-            end
-
+            
             % sample from the pseudo prior ends
         end
-
+        
     end
-
+    
     % (3) Gibbs sampling for Q_mat
     for k=1:K
-
+        
         % size p*1
         Q_mat_k1 = Q_mat; Q_mat_k1(:, k) = 1;
         Q_mat_k0 = Q_mat; Q_mat_k0(:, k) = 0;
-
+        
         % get linear forms, n_now * p * d
         [~, linear_form_k1, ~] = get_linear_form(beta_mat, beta0, Q_mat_k1, A_mat);
         [~, linear_form_k0, ~] = get_linear_form(beta_mat, beta0, Q_mat_k0, A_mat);
-
+        
         %% collapse out the PG variables
         % normalize_lf_k1 = linear_form_k1 - log(sum(exp(linear_form_k1),3));
         normalize_lf_k1 = linear_form_k1 - max(linear_form_k1, [], 3);
         normalize_lf_k0 = linear_form_k0 - max(linear_form_k0, [], 3);
-
+        
         % min(normalize_lf_k1,[],3)
-
+        
         % size n_now * p
         denom_category_h1 = sum(exp(normalize_lf_k1), 3);
         denom_category_h0 = sum(exp(normalize_lf_k0), 3);
-
+        
         % size n_now * p * d; sum(cond_prob_h1, 3) = 1
         cond_prob_h1 = bsxfun(@rdivide, exp(normalize_lf_k1), denom_category_h1);
         cond_prob_h0 = bsxfun(@rdivide, exp(normalize_lf_k0), denom_category_h0);
-
+        
         % size n_now * p
         prod_part_h1 = prod( bsxfun(@power, cond_prob_h1, Y_now_arr), 3);
         prod_part_h0 = prod( bsxfun(@power, cond_prob_h0, Y_now_arr), 3);
-
+        
         ratio_qk_01 = sig2_pseudo^(-(d-1)/2) / prod(sig2_beta(k,:).^(-1/2)) ...
             * exp(-1/2 * squeeze(beta_mat(:,k,1:d-1).^2) * (sig2_pseudo^(-1) - sig2_beta(k,:).^(-1))' ...
             + sum(log(prod_part_h0) - log(prod_part_h1), 1)');
-
+        
         prob_Qk = 1./(1 + (1-gamma_q)/gamma_q * ratio_qk_01);
-
+        
         Q_mat(:, k) = (rand(p,1) < prob_Qk);
-
+        
     end
-
-
+    
+    
     % (3)+, update gamma_q
     gamma_q = betarnd(1+sum(sum(Q_mat)), 1+p*K-sum(sum(Q_mat)), 1);
     gamma_q_arr(ii) = gamma_q;
-
-
+    
+    
     % (6) Gibbs sampling for A_mat
     % -- update A_mat -- %
     for k=1:K
@@ -206,10 +206,10 @@ for ii=1:nrun
         z_tau_vec = z_tau_mat*(1:B)';
         Bern_part_k1 = (Bern_K(k, z_tau_vec))';
         Bern_part_k0 = 1 - Bern_part_k1;
-
+        
         A_mat_k1 = A_mat; A_mat_k1(:, k) = 1;
         A_mat_k0 = A_mat; A_mat_k0(:, k) = 0;
-
+        
         % get linear forms, n_now * p * d
         [~, linear_form_ak1, ~] = get_linear_form(beta_mat, beta0, Q_mat, A_mat_k1);
         [~, linear_form_ak0, ~] = get_linear_form(beta_mat, beta0, Q_mat, A_mat_k0);
@@ -222,38 +222,38 @@ for ii=1:nrun
         % size n_now * p
         denom_category_ah1 = sum(exp(normalize_lf_ak1), 3);
         denom_category_ah0 = sum(exp(normalize_lf_ak0), 3);
-
+        
         % size n_now * p * d; sum(cond_prob_ah1, 3) = 1
         cond_prob_ah1 = bsxfun(@rdivide, exp(normalize_lf_ak1), denom_category_ah1);
         cond_prob_ah0 = bsxfun(@rdivide, exp(normalize_lf_ak0), denom_category_ah0);
-
+        
         % size n_now * p
         prod_part_ah1 = prod( bsxfun(@power, cond_prob_ah1, Y_now_arr), 3);
         prod_part_ah0 = prod( bsxfun(@power, cond_prob_ah0, Y_now_arr), 3);
-
+        
         ratio_alikelihood = exp(sum(log(prod_part_ah0) - log(prod_part_ah1), 2));
-
+        
         prob_Ak = 1./( 1 + (Bern_part_k0./Bern_part_k1) .*  ratio_alikelihood);
-
+        
         A_mat(:, k) = (rand(n_now,1) < prob_Ak);
     end
-
-
-
+    
+    
+    
     % (4) Gibbs sampling for sig2_beta, size K * d-1
     % -- update sig2_beta -- %
-    for c=1:d-1 
+    for c=1:d-1
         for k=1:K
             sig2_beta(k,c) = 1/gamrnd(a_sig + 0.5 * sum(Q_mat(:,k)), ...
                 1/(b_sig + 0.5 * sum(Q_mat(:,k) .* beta_mat(:,k,c).^2)) );
         end
     end
-
+    
     % (5) Gibbs sampling for the deeper latent layer and Z
     % -- update Bern_K, deep tensor arms -- %
     Bern_K = betarnd(1 + A_mat' * z_tau_mat, 1 + (1-A_mat)' * z_tau_mat);
     % -- update tau, deep tensor core -- %
-    tau_temp = gamrnd(1 + sum(z_tau_mat, 1), 1); 
+    tau_temp = gamrnd(1 + sum(z_tau_mat, 1), 1);
     tau = tau_temp/sum(tau_temp);
     % -- update z_tau_mat, deep tensor core membership -- %
     z_tau_prob = zeros(n_now, B);
@@ -261,12 +261,12 @@ for ii=1:nrun
         z_tau_prob(:, b) = tau(b) * ...
             prod( bsxfun(@power, (Bern_K(:,b))', A_mat), 2 ) .* ...
             prod( bsxfun(@power, (1-Bern_K(:,b))', 1-A_mat), 2 );
-            % prod(beta(1 + A_mat .* z_tau_mat(:,b), 1 + (1-A_mat) .* z_tau_mat(:,b)), 2);
+        % prod(beta(1 + A_mat .* z_tau_mat(:,b), 1 + (1-A_mat) .* z_tau_mat(:,b)), 2);
     end
     z_tau_prob = z_tau_prob ./ sum(z_tau_prob,2);
     z_tau_mat = mnrnd(1, z_tau_prob);
-
-
+    
+    
     %% store output data
     Q_mat_arr(:,:,ii) = Q_mat;
     beta_mat_arr(:,:,:,ii) = beta_mat;
@@ -276,11 +276,11 @@ for ii=1:nrun
     % subject-specific local parameters
     A_mat_arr(:,:,ii) = A_mat;
     z_mat_arr(:,:,ii) = z_tau_mat;
-
+    
     sig2_beta_arr(:,:,ii) = sig2_beta;
-
+    
     fprintf('Gibbs iteration %d completed\n', ii);
-
+    
 end
 
 
@@ -292,7 +292,7 @@ Q_pm_raw = (mean(Q_mat_arr(:,:,burn+1:thin:end), 3) > 0.5);
 Q_firstK_binind = 2.^(0:K-1) * Q_pm_raw(1:K, :);
 [~, permute_vec] = sort(Q_firstK_binind);
 
-% permute everything 
+% permute everything
 % % (and only store the effective posterior samples)
 Q_mat_arr = Q_mat_arr(:, permute_vec, :);
 beta_mat_arr = beta_mat_arr(:, permute_vec, :, :);

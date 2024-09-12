@@ -3,12 +3,12 @@ rng(0513)
 % -- global parameters -- %
 % This function generate 2-latent-layer data under weaker signal strengths
 
-n = 1750;  
+n = 1750;
 rep = 50;
 K0 = 4;
 d = 4;
 
-Q_true = [eye(K0); eye(K0); eye(K0); 
+Q_true = [eye(K0); eye(K0); eye(K0);
     1 1 0 0; 0 1 1 0; 0 0 1 1; 1 0 0 1; 1 0 1 0; 0 1 0 1; ...
     1 1 1 0; 0 1 1 1];
 p = size(Q_true, 1);
@@ -16,8 +16,8 @@ p = size(Q_true, 1);
 beta0_true = repmat([-3 -2 -1], [p 1]);
 
 beta_max = [3 * ones(12,3); ...
-            4 * ones(6, 3); ...
-            6 * ones(2, 3)];
+    4 * ones(6, 3); ...
+    6 * ones(2, 3)];
 
 beta_mat_true_dense = zeros(p, K0, d-1);
 for j=1:p
@@ -37,7 +37,7 @@ Yn_big_arr = zeros(n,d,p,rep); % binarized data array with 1 and 0
 A_all = get_I(K0, K0);
 Lambda_arr_true = zeros(2^K0, p, d);
 for j=1:p
-
+    
     nume_temp = exp(beta0_true(j,:) + A_all * squeeze(beta_mat_true(j,:,:)));
     denom_temp = 1 + sum(nume_temp, 2);
     Lambda_arr_true(:,j,1:end-1) = nume_temp ./ denom_temp;
